@@ -1,17 +1,15 @@
-# cat_app
+# Cat Picture App
 
-This template should help get you started developing with Vue 3 in Vite.
+## Build the Docker image and Run the Docker container
+Please run the following command 
+```sh
+docker build -t cat-app . 
+docker run -p 8080:80 cat-app
 
-## Recommended IDE Setup
-
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
+```
 
 ## Project Setup
-
+If you want to set up the Vue3 project, run the following command
 ```sh
 npm install
 ```
