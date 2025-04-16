@@ -151,14 +151,23 @@ onMounted( () => { // when open or refresh the page, load the favorite pictures 
       <button id="get_cat_btn" @click="getCat">🐱 Serve a Cat Picture!</button>
          <button id="favorite_btn" @click="saveFavorite" :disabled="isLoading" >{{ isCurrentFavorite ? '💔 Remove from Favorites' : '❤️ Save to Favorites' }}</button>
       <div class="button-group">
-       <button id="back_btn" @click="goBack">
-         Back
-      </button>
-        <button id="next_btn" @click="goNext">
-          Next
+        <button id="back_btn" @click="goBack">
+          <img src="@/assets/img/fish_left.png" alt="Back" />
         </button>
+        <button id="next_btn" @click="goNext">
+          <img src="@/assets/img/fish_right.png" alt="Next" />
+        </button>
+      </div>
+      <div>
+        <h4>Instructions:</h4>
+        <ol>
+          <li>Click <strong>"Serve a Cat Picture"</strong> to load a new cat picture.</li>
+          <li>Use the 🐟 buttons to browse previously viewed pictures (up to 50).</li>
+          <li>Click <strong>"Save to Favorites"</strong> to save your favorite cats. Favorite pictures will be load when open/refresh the page. You can save up to 50 favorites.</li>
+          <li>Click <strong>"Remove from Favorites"</strong> to un-save a cat.</li>
+        </ol>
+      </div>
     </div>
-  </div>
   </div>
 </template>
 
@@ -214,10 +223,22 @@ onMounted( () => { // when open or refresh the page, load the favorite pictures 
   margin: 0 auto;
 
 }
-
+#get_cat_btn {
+  background: #ffd710;
+  color: black;
+}
+#favorite_btn {
+  background: #fcb566;
+  color: black;
+}
 #back_btn, #next_btn {
   width: 135px;
+  background: none;
 }
-
+button img{
+  height:45px;
+  object-fit: contain;
+  transition: transform 0.2s ease;
+}
 
 </style>

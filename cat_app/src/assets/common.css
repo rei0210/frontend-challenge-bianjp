@@ -40,3 +40,9 @@ button {
   border: none;
   height:45px;
 }
+button:hover{
+ filter: brightness(110%);
+}
+button:disabled {
+  filter: grayscale(80%) brightness(80%);
+}
