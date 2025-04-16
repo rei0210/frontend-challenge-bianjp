@@ -1,9 +1,19 @@
 <script setup>
-import {ref} from "vue";
+import {computed, onMounted, ref} from "vue";
 
-const history = ref([])
-const currentIndex = ref(-1)
+
+const history = ref([])   // history pictures
+const currentIndex = ref(-1) // The index of the current exhibited picture
+
+const favorites = ref([])// favorite pictures
+const isCurrentFavorite = computed(() => {// if the current pic is in favorites, return true
+  console.log(currentIndex.value,'aaaaa')
+  const currentUrl = history.value[currentIndex.value]
+  return favorites.value.includes(currentUrl)
+})
+
 const isLoading = ref(false)
+
 const errorMessage = ref('')
 
 async function getCat() {
@@ -18,6 +28,10 @@ async function getCat() {
     const newUrl = data.url
     if (!res.ok || !newUrl) {
       throw new Error("Failed to fetch Cat Picture" + res.status);
+    }
+     // limit the length of history to 50
+    if (history.value.length >= 50) {
+      history.value.shift() // if length gets over 50, the first picture in history will be removed
     }
     history.value.push(newUrl)
     currentIndex.value = history.value.length - 1
@@ -72,6 +86,40 @@ function goNext() {
 function onImageLoad() {
   isLoading.value = false
 }
+
+function saveFavorite() {
+  const currentUrl = history.value[currentIndex.value]
+  const index = favorites.value.indexOf(currentUrl)
+  if (index !== -1) {
+    // if it has been saved in favorites, removed it from favorites
+    favorites.value.splice(index, 1)
+  } else {
+    // if it has not been saved in favorites, push it into favorites
+    if (favorites.value.length >= 50) {// set a number limit
+      alert('🐱 You can only save up to 50 favorite cats!')
+      return
+    }else{
+      favorites.value.push(currentUrl)
+    }
+
+  }
+  // update local storage
+  localStorage.setItem('favorites', JSON.stringify(favorites.value))
+
+}
+
+onMounted( () => { // when open or refresh the page, load the favorite pictures from local storage
+  const stored = localStorage.getItem('favorites')
+    if (stored) {
+      favorites.value = JSON.parse(stored)
+      history.value= [...favorites.value]
+      console.log(history.value)
+      currentIndex.value = 0
+    }else{ // if there is no pictures in favorite, load a cat picture
+      getCat()
+    }
+  }
+)
 </script>
 
 <template>
@@ -95,13 +143,14 @@ function onImageLoad() {
         </div>
       </div>
       <p>
-        Image {{ currentIndex + 1 }} of {{ history.length}}
+        Image {{ currentIndex + 1 }} of {{ history.length}} (50 🐱 maximum)
       </p>
     </div>
 
     <div class="operation">
       <button id="get_cat_btn" @click="getCat">🐱 Serve a Cat Picture!</button>
-     <div class="button-group">
+         <button id="favorite_btn" @click="saveFavorite" :disabled="isLoading" >{{ isCurrentFavorite ? '💔 Remove from Favorites' : '❤️ Save to Favorites' }}</button>
+      <div class="button-group">
        <button id="back_btn" @click="goBack">
          Back
       </button>
