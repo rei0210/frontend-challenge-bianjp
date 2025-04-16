@@ -3,9 +3,13 @@ import {ref} from "vue";
 
 const history = ref([])
 const currentIndex = ref(-1)
+const isLoading = ref(false)
 const errorMessage = ref('')
 
 async function getCat() {
+  isLoading.value = true
+  // clear the errorMessage
+  errorMessage.value = ''
   try {
     // get the cat picture info from the given api
     const res = await fetch("https://cataas.com/cat?json=true");
@@ -22,18 +26,52 @@ async function getCat() {
   } catch (error) {
     errorMessage.value = '😿 Oops! Failed to load a cat picture. Please try again.'
     console.log(errorMessage.value)
+    isLoading.value = false
   }
 }
 
 function goBack() {
+  errorMessage.value = ''
+  if(history.value.length === 1||history.value.length === 0) {// when there's no picture or there's only one picture, do nothing
+    return
+  }
+  isLoading.value=true
+  try {
+
+    if(currentIndex.value ===0) {// if it's the first picture in history, go to the last one
+      currentIndex.value=history.value.length - 1
+    }else{// if it's not the first picture in history, go back
+      currentIndex.value--
+    }
+  }catch(error){
+    errorMessage.value = '😿 Oops! Failed to load a cat picture. Please try again.'
+    console.log(errorMessage.value)
+    isLoading.value = false
+  }
 
 }
 
-// 下一张
 function goNext() {
-
+  errorMessage.value = ''
+  if(history.value.length === 1||history.value.length === 0) {// when there's no picture or there's only one picture, do nothing
+    return
+  }
+  isLoading.value=true
+  try {
+    if(currentIndex.value ===history.value.length - 1) {// if it's the last picture in history, go to the first one
+      currentIndex.value=0
+    }else{// if it's not the last picture in history, go next
+      currentIndex.value++
+    }
+  }catch(error){
+    errorMessage.value = '😿 Oops! Failed to load a cat picture. Please try again.'
+    console.log(errorMessage.value)
+    isLoading.value = false
+  }
 }
-
+function onImageLoad() {
+  isLoading.value = false
+}
 </script>
 
 <template>
@@ -44,19 +82,30 @@ function goNext() {
     <div class="image-container">
       <div class="image-wrapper">
         <img :src="history[currentIndex]"
-         alt="Cat Picture"
+             alt="Cat Picture"
+             @load="onImageLoad"
+             :class="{'loading':isLoading}"
         />
+        <div v-if="isLoading" class="main-overlay" id="loading-overlay">
+          <div class="spinner"></div>
+          <p>Loading a cat picture...</p>
+        </div>
+        <div v-if="errorMessage" class="main-overlay" id="error-overlay">
+          {{ errorMessage }}
+        </div>
       </div>
-      <p>Image {{ currentIndex + 1 }} of {{ history.length}}(Only the latest 50 pictures are saved in history)</p>
+      <p>
+        Image {{ currentIndex + 1 }} of {{ history.length}}
+      </p>
     </div>
 
     <div class="operation">
       <button id="get_cat_btn" @click="getCat">🐱 Serve a Cat Picture!</button>
      <div class="button-group">
-       <button id="back_btn" @click="goBack" :disabled="currentIndex <= 0">
+       <button id="back_btn" @click="goBack">
          Back
       </button>
-        <button id="next_btn" @click="goNext" :disabled="currentIndex >= history.length - 1">
+        <button id="next_btn" @click="goNext">
           Next
         </button>
     </div>
@@ -91,13 +140,7 @@ function goNext() {
   flex-direction: column;
   gap: 15px;
 }
-button {
-  font-size: 18px;
-  cursor: pointer;
-  border-radius: 10px;
-  border: none;
-  height:45px;
-}
+
 .image-wrapper {
   width: 100%;
   max-height:80vh;
